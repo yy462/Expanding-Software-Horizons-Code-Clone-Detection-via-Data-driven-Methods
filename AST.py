@@ -169,7 +169,6 @@ def createast():
 def createseparategraph(astdict,vocablen,vocabdict,device,mode='astonly',nextsib=False,ifedge=False,whileedge=False,foredge=False,blockedge=False,nexttoken=False,nextuse=False):
     pathlist=[]
     treelist=[]
-    # print('nextsib ',nextsib)
     # print('ifedge ',ifedge)
     # print('whileedge ',whileedge)
     # print('foredge ',foredge)
