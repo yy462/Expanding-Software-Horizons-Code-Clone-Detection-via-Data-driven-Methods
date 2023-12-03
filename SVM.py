@@ -42,7 +42,7 @@ class CodeCloneDetector:
         predictions = self.predict(test_data)
         return classification_report(test_data['label'], predictions, output_dict=True)
 
-    def save_predictions(self, predictions, file_name='svm_result.txt'):
+    def save_predictions(self, predictions, file_name='svm_result_part.txt'):
         with open(file_name, 'w') as file:
             for pred in predictions:
                 file.write(str(pred) + '\n')
@@ -50,8 +50,8 @@ class CodeCloneDetector:
 # Use the class as before
 detector = CodeCloneDetector()
 
-train_data = detector.load_data('./BCB/traindata.txt')
-test_data = detector.load_data('./BCB/testdata.txt')
+train_data = detector.load_data('./BCB/traindata11.txt')
+test_data = detector.load_data('./BCB/testdata11.txt')
 
 detector.train(train_data)
 
