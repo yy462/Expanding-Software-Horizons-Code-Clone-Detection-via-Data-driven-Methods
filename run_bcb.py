@@ -14,6 +14,7 @@ import pycparser
 from createclone_bcb import createast,creategmndata,createseparategraph
 import models
 from torch_geometric.data import Data, DataLoader
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cuda", default=True)
@@ -89,26 +90,19 @@ def test(dataset):
         if prediction<=args.threshold and label.item()==1:
             fn+=1
             #print('fn')
-    print(tp,tn,fp,fn)
-    p=0.0
-    r=0.0
-    f1=0.0
-    if tp+fp==0:
-        print('precision is none')
-        return
-    p=tp/(tp+fp)
-    if tp+fn==0:
-        print('recall is none')
-        return
-    r=tp/(tp+fn)
-    f1=2*p*r/(p+r)
-    print('precision')
-    print(p)
-    print('recall')
-    print(r)
-    print('F1')
-    print(f1)
+    total = tp + tn + fp + fn
+    accuracy = (tp + tn) / total if total > 0 else 0
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+
+    print('Accuracy: {:.2f}%'.format(100 * accuracy))
+    print('Precision: {:.2f}'.format(precision))
+    print('Recall: {:.2f}'.format(recall))
+    print('F1 Score: {:.2f}'.format(f1))
+
     return results
+
 epochs = trange(args.num_epochs, leave=True, desc = "Epoch")
 for epoch in epochs:# without batching
     print(epoch)
@@ -146,6 +140,10 @@ for epoch in epochs:# without batching
         epochs.set_description("Epoch (Loss=%g)" % round(loss,5))
     #test(validdata)
     devresults=test(validdata)
+
+    if not os.path.exists('gmnbcbresult'):
+        os.makedirs('gmnbcbresult')
+
     devfile=open('gmnbcbresult/'+args.graphmode+'_dev_epoch_'+str(epoch+1),mode='w')
     for res in devresults:
         devfile.write(str(res)+'\n')
