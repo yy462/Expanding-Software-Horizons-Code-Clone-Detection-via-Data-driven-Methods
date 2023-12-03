@@ -3,6 +3,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from sklearn.feature_extraction.text import CountVectorizer
 import os
+from AST import createseparategraph
 
 class CodeCloneDetector:
     def __init__(self):
@@ -15,6 +16,7 @@ class CodeCloneDetector:
         return data
 
     def extract_features(self, data, fit_vectorizer=False):
+        createseparategraph(data,"",[],'')
         combined_code = []
         for _, row in data.iterrows():
             file1 = "./BCB" + row['file1'][1:]
