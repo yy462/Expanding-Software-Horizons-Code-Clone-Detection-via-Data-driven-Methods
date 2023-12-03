@@ -50,8 +50,8 @@ class CodeCloneDetector:
 
 detector = CodeCloneDetector()
 
-train_data = detector.load_data('./BCB/traindata11.txt')
-test_data = detector.load_data('./BCB/testdata11.txt')
+train_data = detector.load_data('./BCB/traindata.txt')
+test_data = detector.load_data('./BCB/testdata.txt')
 
 detector.train(train_data)
 
