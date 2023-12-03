@@ -176,7 +176,7 @@ def createseparategraph(astdict,vocablen,vocabdict,device,mode='astonly',nextsib
     # print('blockedge ',blockedge)
     # print('nexttoken', nexttoken)
     # print('nextuse ',nextuse)
-    # print(len(astdict))
+    # print(len(astdict)
     for path,tree in astdict.items():
         #print(tree)
         #print(path)
