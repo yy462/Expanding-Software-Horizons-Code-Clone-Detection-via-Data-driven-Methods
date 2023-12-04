@@ -18,6 +18,9 @@ __size_error_msg__ = ('All tensors which should get mapped to the same source '
                       'or target nodes must be of same size in dimension 0.')
 
 class GMNlayer(MessagePassing):
+    """
+    A layer of Graph Matching Network that extends the MessagePassing class.
+    """
     def __init__(self, in_channels, out_channels,device):
         super(GMNlayer, self).__init__(aggr='add')  # "Add" aggregation.
         self.device=device
@@ -226,6 +229,9 @@ class GMNlayer(MessagePassing):
         return aggr_out
 
 class GMNnet(torch.nn.Module):
+    """
+    Graph Matching Network model implementation.
+    """
     def __init__(self,vocablen,embedding_dim,num_layers,device):
         super(GMNnet, self).__init__()
         self.device=device
@@ -268,6 +274,9 @@ class GMNnet(torch.nn.Module):
             #x=layer(x,edge_index, edge_index2)
 
 class GGNN(torch.nn.Module):
+    """
+    Gated Graph Neural Network model implementation.
+    """
     def __init__(self,vocablen,embedding_dim,num_layers,device):
         super(GGNN, self).__init__()
         self.device=device
