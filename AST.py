@@ -1,32 +1,31 @@
 import os
 import random
-import javalang  # Importing the javalang library for parsing Java code.
+import javalang
 import javalang.tree
 import javalang.ast
 import javalang.util
-from javalang.ast import Node  # Node class from javalang to represent elements of the AST.
-import torch  # PyTorch library for tensor operations.
-from anytree import AnyNode, RenderTree  # anytree library to create and visualize tree structures.
+from javalang.ast import Node
+import torch
+from anytree import AnyNode, RenderTree
+#import treelib
 from anytree import find
-from createclone_java import getedge_nextsib, getedge_flow, getedge_nextstmt, getedge_nexttoken, getedge_nextuse
+from createclone_java import getedge_nextsib,getedge_flow,getedge_nextstmt,getedge_nexttoken,getedge_nextuse
 
 def get_token(node):
-    """
-    Extracts the token from a node in the AST. A token could be a string, a modifier, or a node type.
-    """
     token = ''
+    #print(isinstance(node, Node))
+    #print(type(node))
     if isinstance(node, str):
         token = node
     elif isinstance(node, set):
         token = 'Modifier'
     elif isinstance(node, Node):
         token = node.__class__.__name__
+    #print(node.__class__.__name__,str(node))
+    #print(node.__class__.__name__, node)
     return token
-
 def get_child(root):
-    """
-    Retrieves the children of a given AST node. Expands any nested lists within the children.
-    """
+    #print(root)
     if isinstance(root, Node):
         children = root.children
     elif isinstance(root, set):
@@ -35,57 +34,44 @@ def get_child(root):
         children = []
 
     def expand(nested_list):
-        """ A helper function to flatten nested lists within the AST nodes. """
         for item in nested_list:
             if isinstance(item, list):
                 for sub_item in expand(item):
+                    #print(sub_item)
                     yield sub_item
             elif item:
+                #print(item)
                 yield item
     return list(expand(children))
-
 def get_sequence(node, sequence):
-    """
-    Traverses the AST from a given node, appending each token to the sequence.
-    """
     token, children = get_token(node), get_child(node)
     sequence.append(token)
+    #print(len(sequence), token)
     for child in children:
         get_sequence(child, sequence)
 
-def getnodes(node, nodelist):
-    """
-    Collects all nodes in the AST starting from a given node.
-    """
+def getnodes(node,nodelist):
     nodelist.append(node)
     children = get_child(node)
     for child in children:
-        getnodes(child, nodelist)
+        getnodes(child,nodelist)
 
-def createtree(root, node, nodelist, parent=None):
-    """
-    Creates a tree structure from AST nodes.
-    """
+def createtree(root,node,nodelist,parent=None):
     id = len(nodelist)
+    #print(id)
     token, children = get_token(node), get_child(node)
-    if id == 0:
-        root.token = token
-        root.data = node
+    if id==0:
+        root.token=token
+        root.data=node
     else:
-        newnode = AnyNode(id=id, token=token, data=node, parent=parent)
+        newnode=AnyNode(id=id,token=token,data=node,parent=parent)
     nodelist.append(node)
     for child in children:
-        if id == 0:
-            createtree(root, child, nodelist, parent=root)
+        if id==0:
+            createtree(root,child, nodelist, parent=root)
         else:
-            createtree(root, child, nodelist, parent=newnode)
-
-
-
+            createtree(root,child, nodelist, parent=newnode)
 def getnodeandedge_astonly(node,nodeindexlist,vocabdict,src,tgt):
-    """
-    Extracts nodes and edges from the AST for a given node, focusing only on AST structure.
-    """
     token=node.token
     nodeindexlist.append([vocabdict[token]])
     for child in node.children:
@@ -94,11 +80,7 @@ def getnodeandedge_astonly(node,nodeindexlist,vocabdict,src,tgt):
         src.append(child.id)
         tgt.append(node.id)
         getnodeandedge_astonly(child,nodeindexlist,vocabdict,src,tgt)
-
 def getnodeandedge(node,nodeindexlist,vocabdict,src,tgt,edgetype):
-    """
-    Extracts nodes, edges, and edge types from the AST for a given node.
-    """
     token=node.token
     nodeindexlist.append([vocabdict[token]])
     for child in node.children:
@@ -111,9 +93,6 @@ def getnodeandedge(node,nodeindexlist,vocabdict,src,tgt,edgetype):
         getnodeandedge(child,nodeindexlist,vocabdict,src,tgt,edgetype)
 
 def countnodes(node,ifcount,whilecount,forcount,blockcount):
-    """
-    Counts the occurrences of specific node types in the AST.
-    """
     token=node.token
     if token=='IfStatement':
         ifcount+=1
@@ -137,11 +116,7 @@ def countnodes(node,ifcount,whilecount,forcount,blockcount):
         edgetype.append([1])
     for child in node.children:
         getedge_nextsib(child,vocabdict,src,tgt,edgetype)'''
-
 def createast():
-    """
-    Creates ASTs from Java source files located in a specified directory.
-    """
     asts=[]
     paths=[]
     alltokens=[]
@@ -192,9 +167,6 @@ def createast():
     return astdict,vocabsize,vocabdict
 
 def createseparategraph(astdict,vocablen,vocabdict,device,mode='astonly',nextsib=False,ifedge=False,whileedge=False,foredge=False,blockedge=False,nexttoken=False,nextuse=False):
-    """
-    Creates separate graphs for each AST in the dictionary.
-    """
     pathlist=[]
     treelist=[]
     # print('ifedge ',ifedge)
@@ -230,11 +202,7 @@ def createseparategraph(astdict,vocablen,vocabdict,device,mode='astonly',nextsib
     #treedict=dict(zip(pathlist,treelist))
     #print(totalif,totalwhile,totalfor,totalblock)
     return astdict
-
 def creategmndata(id,treedict,vocablen,vocabdict,device):
-    """
-    Creates data for Graph Matching Networks (GMN) from AST trees.
-    """
     indexdir='BCB/'
     if id=='0':
         trainfile = open(indexdir+'traindata.txt')
@@ -260,11 +228,7 @@ def creategmndata(id,treedict,vocablen,vocabdict,device):
     print('test data')
     testdata=createpairdata(treedict,testlist,device=device)
     return traindata, validdata, testdata
-
 def createpairdata(treedict,pathlist,device):
-    """
-    Creates data for Graph Matching Networks (GMN) from AST trees.
-    """
     datalist=[]
     countlines=1
     for line in pathlist:
